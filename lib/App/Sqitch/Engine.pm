@@ -249,6 +249,11 @@ sub deploy {
         )
     );
 
+    $sqitch->info("Will deploy the following changes:");
+    foreach my $will_deploy_position ($plan->position .. $to_index) {
+      $sqitch->info($plan->change_at($will_deploy_position)->format_name_with_tags);
+    }
+
     # Check that all dependencies will be satisfied.
     $self->check_deploy_dependencies($plan, $to_index);
 
@@ -315,7 +320,15 @@ sub revert {
                 change      => $change->format_name_with_tags,
                 destination => $self->destination,
             ));
+            $sqitch->info('Will revert the following changes:');
+            foreach my $change (@changes) {
+              $sqitch->info($change->format_name_with_tags);
+            }
         } else {
+            $sqitch->info('Would revert the following changes:');
+            foreach my $change (@changes) {
+              $sqitch->info($change->format_name_with_tags);
+            }
             hurl {
                 ident   => 'revert:confirm',
                 message => __ 'Nothing reverted',
@@ -326,7 +339,6 @@ sub revert {
                 destination => $self->destination,
             ), $self->prompt_accept );
         }
-
     } else {
         @changes = $self->deployed_changes or do {
             $sqitch->info(__ 'Nothing to revert (nothing deployed)');
@@ -338,7 +350,15 @@ sub revert {
                 'Reverting all changes from {destination}',
                 destination => $self->destination,
             ));
+            $sqitch->info('Will revert the following changes:');
+            foreach my $change (@changes) {
+              $sqitch->info($change->format_name_with_tags);
+            }
         } else {
+            $sqitch->info('Would revert the following changes:');
+            foreach my $change (@changes) {
+              $sqitch->info($change->format_name_with_tags);
+            }
             hurl {
                 ident   => 'revert',
                 message => __ 'Nothing reverted',
